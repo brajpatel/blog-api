@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const PostSchema = new Schema({
-    title: { type: String, required: true },
-    content: { type: String, required: true },
+    title: { type: String, minLength: 8, required: true },
+    content: { type: String, minLength: 40, required: true },
     date_added: { type: String, required: true },
-    published: { type: Boolean, required: true },
+    published: { type: Boolean, default: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 })
