@@ -2,3 +2,12 @@ extends layout
 
 block content
   h1= title
+
+  ul
+    each post in posts_list
+      li
+        h2 #{post.title}
+        p #{post.content}
+
+    else
+      li There are no posts yet

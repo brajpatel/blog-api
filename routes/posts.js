@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const postsController = require('../controllers/postsController');
 
-router.get('/', (req, res) => {
-    res.render('index', { title: 'Homepage with some posts' });
-})
+router.get('/', postsController.posts_list);
+
+router.get('/:id', postsController.post_detail)
 
 router.get('/create', (req, res) => {
     res.send('post create - GET')
