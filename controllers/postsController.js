@@ -14,7 +14,7 @@ exports.post_detail = asyncHandler(async (req, res, next) => {
     res.json(selectedPost);
 });
 
-exports.post_create_post = [
+exports.post_create = [
     body("author")
         .trim()
         .isLength({ min: 3 })

@@ -6,8 +6,6 @@ router.get('/', postsController.posts_list);
 
 router.get('/:id', postsController.post_detail);
 
-router.post('/create', (req, res) => {
-    res.send('post create - POST')
-})
+router.post('/create', postsController.post_create);
 
 module.exports = router;
