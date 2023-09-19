@@ -93,8 +93,8 @@ exports.post_add_comment = [
                 _id: req.params.id
             })
 
-            await Post.findByIdAndUpdate(req.params.id, updatedPost, {});
             await comment.save();
+            await Post.findByIdAndUpdate(req.params.id, updatedPost, {});
         }
     })
 ];
