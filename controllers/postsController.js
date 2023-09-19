@@ -10,7 +10,7 @@ exports.posts_list = asyncHandler(async (req, res, next) => {
 });
 
 exports.post_detail = asyncHandler(async (req, res, next) => {
-    const selectedPost = await Post.find(req.params.id).populate("comments").exec();
+    const selectedPost = await Post.findById(req.params.id).populate("comments").exec();
 
     res.json(selectedPost);
 });
@@ -81,6 +81,19 @@ exports.post_add_comment = [
             return;
         }
         else {
+            const post = Post.findById(req.params.id).populate("comments").exec();
+
+            const updatedPost = new Post({
+                author: post.author,
+                title: post.title,
+                content: post.content,
+                date_added: post.date_added,
+                image: post.image,
+                comments: [...post.comments, comment],
+                _id: req.params.id
+            })
+
+            await Post.findByIdAndUpdate(req.params.id, updatedPost, {});
             await comment.save();
         }
     })
