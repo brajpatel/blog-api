@@ -55,3 +55,5 @@ exports.post_create = [
         }
     })
 ]
+
+exports.post_add_comment = [];
