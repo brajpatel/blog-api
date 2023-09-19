@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const Post = require('../models/post');
+const Comment = require('../models/comment');
 const asyncHandler = require('express-async-handler');
 
 exports.posts_list = asyncHandler(async (req, res, next) => {
@@ -69,8 +70,18 @@ exports.post_add_comment = [
     asyncHandler(async (req, res, next) => {
         const errors = validationRequest(req);
 
+        const comment = new Comment({
+            user: req.body.user,
+            message: req.body.message,
+            date_added: new Date().toLocaleDateString() + ' - ' + new Date().toLocaleTimeString(),
+            post: req.params.id
+        })
+
         if(!errors.isEmpty()) {
             return;
+        }
+        else {
+            await comment.save();
         }
     })
 ];
