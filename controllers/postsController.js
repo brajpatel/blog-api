@@ -56,4 +56,21 @@ exports.post_create = [
     })
 ]
 
-exports.post_add_comment = [];
+exports.post_add_comment = [
+    body("name")
+        .trim()
+        .isLength({ min: 3 })
+        .escape(),
+    body("message")
+        .trim()
+        .isLength({ min: 20 })
+        .escape(),
+
+    asyncHandler(async (req, res, next) => {
+        const errors = validationRequest(req);
+
+        if(!errors.isEmpty()) {
+            return;
+        }
+    })
+];
