@@ -4,9 +4,13 @@ const Comment = require('../models/comment');
 const asyncHandler = require('express-async-handler');
 
 exports.posts_list = asyncHandler(async (req, res, next) => {
-    const allPosts = await Post.find().exec();
+    const posts = await Post.find().exec();
 
-    res.json(allPosts);
+    if(!posts) {
+        return res.status(404).json({ err: "No posts were found" });
+    }
+    
+    res.status(200).json(posts);
 });
 
 exports.post_detail = asyncHandler(async (req, res, next) => {
@@ -15,21 +19,7 @@ exports.post_detail = asyncHandler(async (req, res, next) => {
     res.json(selectedPost);
 });
 
-exports.post_create = [
-    body("author")
-        .trim()
-        .isLength({ min: 3 })
-        .escape(),
-    body("title")
-        .trim()
-        .isLength({ min: 8 })
-        .escape(),
-    body("content")
-        .trim()
-        .isLength({ min: 40 })
-        .escape(),
-
-    asyncHandler(async (req, res, next) => {
+exports.post_create = asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
 
         const post = new Post({
@@ -55,7 +45,6 @@ exports.post_create = [
             }
         }
     })
-]
 
 exports.post_add_comment = [
     body("name")
