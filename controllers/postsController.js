@@ -35,10 +35,11 @@ exports.post_create = asyncHandler(async (req, res, next) => {
     const postExists = await Post.findOne({ title: req.body.title });
 
     if(postExists) {
-        return;
+        return res.status(403).json({ msg: "Post already exists" });
     }
     else {
         await post.save();
+        return res.status(200).json({ msg: "Post created successfully" });
     }
 })
 
@@ -51,6 +52,10 @@ exports.post_add_comment = asyncHandler(async (req, res, next) => {
     })
 
     const postToUpdate = await Post.findById(req.params.id).populate("comments").exec();
+
+    if(!postToUpdate) {
+        return res.status(404).json({ err: "Post could not be found" });
+    }
 
     let comments = postToUpdate.comments;
 
@@ -77,15 +82,20 @@ exports.post_add_comment = asyncHandler(async (req, res, next) => {
     const post = await Post.findById(req.params.id).populate("comments").exec();
     
     if(!post) {
-        return res.status(404).json({ err: "Post could not be found"});
+        return res.status(404).json({ err: "Post could not be found" });
     }
 
     return res.status(200).json(post);
 })
 
 // {
-//     "author": "BRUV",
-//     "title": "ANOTHER Postman POST Test",
-//     "content": "ANOTHER ANOTHER ANOTHERPostman POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works testPostman BRUV ANA BRUH POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works test",
-//     "image": "https://r4.wallpaperflare.com/wallpaper/892/692/922/howl-s-moving-castle-studio-ghibli-fantasy-art-clouds-daylight-hd-wallpaper-3be62c2d93012fc995842bf94d4cdc00.jpg"
+//     "author": "",
+//     "title": "",
+//     "content": "",
+//     "image": ""
+// }
+
+// {
+//     "name": "",
+//     "message": ""
 // }
