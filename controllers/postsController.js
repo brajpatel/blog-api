@@ -16,7 +16,11 @@ exports.posts_list = asyncHandler(async (req, res, next) => {
 exports.post_detail = asyncHandler(async (req, res, next) => {
     const selectedPost = await Post.findById(req.params.id).populate("comments").exec();
 
-    res.json(selectedPost);
+    if(!selectedPost) {
+        res.status(404).json({ err: "Post could not be found" })
+    }
+
+    res.status(200).json(selectedPost);
 });
 
 exports.post_create = asyncHandler(async (req, res, next) => {
