@@ -1,4 +1,3 @@
-const { body, validationResult } = require('express-validator');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 const asyncHandler = require('express-async-handler');
@@ -17,77 +16,76 @@ exports.post_detail = asyncHandler(async (req, res, next) => {
     const selectedPost = await Post.findById(req.params.id).populate("comments").exec();
 
     if(!selectedPost) {
-        res.status(404).json({ err: "Post could not be found" })
+        return res.status(404).json({ err: "Post could not be found" })
     }
 
     res.status(200).json(selectedPost);
 });
 
 exports.post_create = asyncHandler(async (req, res, next) => {
-        const errors = validationResult(req);
+    const post = new Post({
+        author: req.body.author,
+        title: req.body.title,
+        content: req.body.content,
+        date_added: new Date().toLocaleDateString() + ' - ' + new Date().toLocaleTimeString(),
+        image: req.body.image,
+        comments: []
+    })
 
-        const post = new Post({
-            author: req.body.author,
-            title: req.body.title,
-            content: req.body.content,
-            date_added: new Date().toLocaleDateString() + ' - ' + new Date().toLocaleTimeString(),
-            image: req.body.image,
-            comments: []
-        })
+    const postExists = await Post.findOne({ title: req.body.title });
 
-        if(!errors.isEmpty()) {
-            return;
-        }
-        else {
-            const postExists = await Post.findOne({ title: req.body.title });
+    if(postExists) {
+        return;
+    }
+    else {
+        await post.save();
+    }
+})
+
+exports.post_add_comment = asyncHandler(async (req, res, next) => {
+    const comment = new Comment({
+        name: req.body.name,
+        message: req.body.message,
+        date_added: new Date().toLocaleDateString() + ' - ' + new Date().toLocaleTimeString(),
+        post: req.params.id
+    })
+
+    const postToUpdate = await Post.findById(req.params.id).populate("comments").exec();
+
+    let comments = postToUpdate.comments;
+
+    if(comments.length > 0) {
+        comments = [...comments, comment];
+    }
+    else {
+        comments = new Array(comment);
+    }
+
+    const updatedPost = new Post({
+        author: postToUpdate.author,
+        title: postToUpdate.title,
+        content: postToUpdate.content,
+        date_added: postToUpdate.date_added,
+        image: postToUpdate.image,
+        comments: comments,
+        _id: req.params.id
+    })
+
+    await comment.save();
+    await Post.findByIdAndUpdate(req.params.id, updatedPost, {});
+
+    const post = await Post.findById(req.params.id).populate("comments").exec();
     
-            if(postExists) {
-                return;
-            }
-            else {
-                await post.save();
-            }
-        }
-    })
+    if(!post) {
+        return res.status(404).json({ err: "Post could not be found"});
+    }
 
-exports.post_add_comment = [
-    body("name")
-        .trim()
-        .isLength({ min: 3 })
-        .escape(),
-    body("message")
-        .trim()
-        .isLength({ min: 20 })
-        .escape(),
+    return res.status(200).json(post);
+})
 
-    asyncHandler(async (req, res, next) => {
-        const errors = validationRequest(req);
-
-        const comment = new Comment({
-            user: req.body.user,
-            message: req.body.message,
-            date_added: new Date().toLocaleDateString() + ' - ' + new Date().toLocaleTimeString(),
-            post: req.params.id
-        })
-
-        if(!errors.isEmpty()) {
-            return;
-        }
-        else {
-            const post = Post.findById(req.params.id).populate("comments").exec();
-
-            const updatedPost = new Post({
-                author: post.author,
-                title: post.title,
-                content: post.content,
-                date_added: post.date_added,
-                image: post.image,
-                comments: [...post.comments, comment],
-                _id: req.params.id
-            })
-
-            await comment.save();
-            await Post.findByIdAndUpdate(req.params.id, updatedPost, {});
-        }
-    })
-];
+// {
+//     "author": "BRUV",
+//     "title": "ANOTHER Postman POST Test",
+//     "content": "ANOTHER ANOTHER ANOTHERPostman POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works testPostman BRUV ANA BRUH POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works testPostman POST Test testing if this works test",
+//     "image": "https://r4.wallpaperflare.com/wallpaper/892/692/922/howl-s-moving-castle-studio-ghibli-fantasy-art-clouds-daylight-hd-wallpaper-3be62c2d93012fc995842bf94d4cdc00.jpg"
+// }
